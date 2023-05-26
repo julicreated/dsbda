@@ -1,0 +1,909 @@
+"""#Assignment 2- student data.csv data wrangling 2
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import LabelEncoder
+stud = pd.read_csv("/content/StudentsPerformanceTest1.csv")
+
+stud.isnull().sum()
+
+stud
+
+stud['reading score'] = stud['reading score'].replace(0,6)
+
+stud
+
+stud['writing score']= stud['writing score'].fillna(stud['writing score'].mean())
+
+stud
+
+stud['Placement Score']= stud['Placement Score'].fillna(stud['Placement Score'].mean())
+
+stud['Region']=stud['Region'].replace('na','nashik')
+stud['Region']=stud['Region'].replace('Na','pune')
+
+stud['Region']=stud['Region'].replace(0 ,'pune')
+
+stud
+
+le =LabelEncoder()
+stud['gender'] = le.fit_transform(stud['gender'])
+
+newstud = stud
+newstud
+
+#import data1.csv
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+demo = pd.read_csv('/content/demo1.csv')
+
+demo.isnull().sum()
+
+columns =['math score' ,'reading score','writing score','placement score']
+
+#BOX PLOT
+demo.boxplot(columns)
+
+print(np.where(demo['math score']>90))
+print(np.where(demo['reading score']<25))
+print(np.where(demo['writing score']<30))
+
+#Scatter PLot
+
+fig ,ax = plt.subplots(figsize =(12,12))
+ax.scatter(demo['placement score'], demo['placement offer count'])
+ax.set_xlabel('(Proportion non-retail business acres)/(town)')
+ax.set_ylabel('(Full-value property-tax rate)/($10,000)')
+
+plt.show()
+
+#Z-SCORE
+from scipy import stats
+z = np.abs(stats.zscore(demo['math score']))
+threshold = 0.20
+sample_outliers = np.where(z <threshold)
+sample_outliers
+
+#Handling of Outliers
+
+# 1) Trimming/removing the outlier
+
+new_demo=demo
+for i in sample_outliers:
+  new_demo.drop(i,inplace=True)
+#new_demo
+
+# Detecting outliers using Z-Score for the Math_score variable and
+
+#remove the outliers
+
+# Observe the histogram for math_score variable.
+import matplotlib.pyplot as plt
+new_demo['math score'].plot(kind = 'hist')
+# Convert the variables to logarithm at the scale 10
+demo['log_math'] = np.log10(demo['math score'])
+
+demo['log_math'].plot(kind = 'hist')
+plt.show()
+
+sns.histplot(demo['writing score'] ,kde=True)
+plt.show()
+#positively skewed
+
+sns.histplot(demo['math score'] ,kde=True)
+plt.show()
+#negatively skewed
+"""
+
+
+"""
+Assignment -1; data wrangling 1
+import pandas as pd
+import numpy as np
+df = pd.read_csv("/content/IRIS.csv")
+df.head()
+
+df.dtypes
+
+from sklearn import preprocessing
+min_max_scaler = preprocessing.MinMaxScaler()
+
+x = df.iloc[:,:4]
+
+x
+
+x_scaled = min_max_scaler.fit_transform(x)
+
+df_normalized = pd.DataFrame(x_scaled)
+df_normalized
+
+df['species'].unique()
+
+label_encoder = preprocessing.LabelEncoder()
+df['species'] = label_encoder.fit_transform(df['species'])
+
+df['species'].unique()
+
+features_df = df.drop(columns=['species'])
+
+enc = preprocessing.OneHotEncoder()
+enc_df=pd.DataFrame(enc.fit_transform(df[['species']]).toarray())
+
+df_encode = features_df.join(enc_df)
+df_encode
+
+df_encode.rename(columns = {0:'Iris-Setosa',
+1:'Iris-Versicolor',2:'Iris-virginica'}, inplace = True)
+
+df_encode
+
+from sklearn import preprocessing
+df['species'].unique()
+
+one_hot_df = pd.get_dummies(df, prefix="Species",
+columns=['species'], drop_first=True)
+
+one_hot_df
+"""
+
+"""Assignment-3; mall_customer, Descriptive Statistics
+
+import pandas as pd
+import numpy as np
+df = pd.read_csv("/content/Mall_Customers.csv")
+
+df
+
+df.mean()
+
+df.loc[:,'Age'].mean()
+
+df.mean(axis = 1)[0:4]
+
+df.median()
+
+df.loc[:,'Age'].median()
+
+df.median(axis = 1)[0:4]
+
+df.mode()
+
+df.loc[:,'Age'].mode()
+
+df.min()
+
+df.loc[:,'Age'].min(skipna = False)
+
+df.max()
+
+df.loc[:,'Age'].max(skipna = False)
+
+df.std()
+
+df.loc[:,'Age'].std()
+
+df.std(axis=1)[0:4]
+
+df.groupby(['Genre'])['Age'].mean()
+
+df_u=df.rename(columns= {'Annual Income (k$)':'Income'},inplace=False)
+df_u
+
+df_u.groupby(['Genre'])['Income'].mean()
+
+from sklearn import preprocessing
+enc = preprocessing.OneHotEncoder()
+enc_df = pd.DataFrame(enc.fit_transform(df[['Genre']]).toarray())
+enc_df
+
+df_encode =df_u.join(enc_df)
+df_encode
+
+iris = pd.read_csv("/content/IRIS.csv")
+
+col_names = ['Sepal_Length','Sepal_Width','Petal_Length','Petal_Width','Species']
+
+iris
+
+irisSet = (iris['species'] == 'Iris-setosa')
+
+print('Iris-setosa')
+print(iris[irisSet].describe())
+
+irisVer = (iris['species'] == 'Iris-versicolor')
+print('Iris-versicolor')
+print(iris[irisVer].describe())
+
+irisVir = (iris['species'] == 'Iris-virginica')
+print('Iris-virginica')
+print(iris[irisVir].describe())
+
+iris[irisVir]
+"""
+
+""" Assignment 4-Linear Regression  data analytics-1
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+x=np.array([95,85,80,70,60])
+y=np.array([85,95,70,65,70])
+
+model= np.polyfit(x, y, 1)
+model
+
+predict=np.poly1d(model)
+predict(65)
+
+y_pred=predict(x)
+y_pred
+
+from sklearn.metrics import r2_score
+r2_score(y, y_pred)
+
+y_line=model[1]+model[0]*x
+plt.plot(x,y_line,c='r')
+plt.scatter(x,y_pred)
+plt.scatter(x,y,c='r')
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+from sklearn.datasets import fetch_california_housing
+housing = fetch_california_housing()
+
+
+data = pd.DataFrame( housing.data)
+
+
+data.columns = housing.feature_names
+data.head()
+
+data['PRICE'] =housing.target
+
+data.isnull().sum()
+
+x=data.drop(["PRICE"],axis=1)
+y=data["PRICE"]
+
+from sklearn.model_selection import train_test_split
+xtrain, xtest, ytrain, ytest = train_test_split(x, y, test_size =0.2,random_state = 0)
+
+import sklearn
+from sklearn.linear_model import LinearRegression
+lm = LinearRegression()
+
+model=lm.fit(xtrain, ytrain)
+
+ytrain_pred = lm.predict(xtrain)
+ytest_pred = lm.predict(xtest)
+
+df=pd.DataFrame(ytrain_pred,ytrain)
+df=pd.DataFrame(ytest_pred,ytest)
+
+from sklearn.metrics import mean_squared_error, r2_score
+
+mse = mean_squared_error(ytest, ytest_pred)
+
+print(mse)
+
+mse = mean_squared_error(ytrain_pred,ytrain)
+
+print(mse)
+
+plt.scatter(ytrain ,ytrain_pred,c='blue',marker='o',label='Training data')
+plt.scatter(ytest,ytest_pred ,c='lightgreen',marker='s',label='Test data')
+plt.xlabel('True values')
+plt.ylabel('Predicted')
+plt.title("True value vs Predicted value")
+plt.legend(loc= 'upper left')
+#plt.hlines(y=0,xmin=0,xmax=50)
+plt.plot()
+plt.show()
+
+"""
+
+"""Assignment -5 data analytics -2
+
+import os
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt                      # Importing the required libraries
+import seaborn as sns
+%matplotlib inline
+
+df=pd.read_csv('/content/Social_Adv-changed.csv')
+df
+df.head()
+df.columns
+df.shape
+df.info()
+df.dtypes
+df.describe()    
+df.isnull().sum()
+df
+  
+df.corr()  
+sns.heatmap(df.corr())  
+
+df['Purchased'].value_counts()
+
+import os
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt                      # Importing the required libraries
+import seaborn as sns 
+%matplotlib inline
+df=pd.read_csv('/content/Social_Adv-changed.csv')
+df
+
+#To check if the data is equally balanced between the target classes
+df['Purchased'].value_counts()
+
+#Defining features and target variable
+y = df['Purchased'] #target variable we want to predict 
+X = df.drop(columns = ['Purchased']) #set of required features, in this case all
+
+
+from sklearn.model_selection import train_test_split
+#Splitting the data into train and test set 
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+
+#Predicting using Logistic Regression for Binary classification 
+from sklearn.linear_model import LogisticRegression
+LR = LogisticRegression()
+LR.fit(X_train,y_train) #fitting the model 
+y_pred = LR.predict(X_test) #prediction
+
+#Evaluation of Model - Confusion Matrix Plot
+import itertools
+def plot_confusion_matrix(cm, classes,
+                          normalize=False,
+                          title='Confusion matrix',
+                          cmap=plt.cm.Blues):
+    """
+    #This function prints and plots the confusion matrix.
+    #Normalization can be applied by setting `normalize=True`.
+    """
+    if normalize:
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        print("Normalized confusion matrix")
+    else:
+        print('Confusion matrix, without normalization')
+
+    print(cm)
+
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
+
+    fmt = '.2f' if normalize else 'd'
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, format(cm[i, j], fmt),
+                 horizontalalignment="center",
+                 color="white" if cm[i, j] > thresh else "black")
+
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+    plt.tight_layout()
+    
+    from sklearn.metrics import confusion_matrix
+# Compute confusion matrix
+cnf_matrix = confusion_matrix(y_test, y_pred)
+np.set_printoptions(precision=2)
+
+
+# Plot non-normalized confusion matrix
+plt.figure()
+plot_confusion_matrix(cnf_matrix, classes=['Age','EstimatedSalary'],
+                      title='Confusion matrix, without normalization')
+
+#extracting true_positives, false_positives, true_negatives, false_negatives
+tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
+print("True Negatives: ",tn)
+print("False Positives: ",fp)
+print("False Negatives: ",fn)
+print("True Positives: ",tp)
+
+#Accuracy
+Accuracy = (tn+tp)*100/(tp+tn+fp+fn) 
+print("Accuracy {:0.2f}%:", format(Accuracy))
+
+#Precision 
+Precision = tp/(tp+fp) 
+print("Precision {:0.2f}",format(Precision))
+
+#Recall 
+Recall = tp/(tp+fn) 
+print("Recall {:0.2f}",format(Recall))
+
+#F1 Score
+f1 = (2*Precision*Recall)/(Precision + Recall)
+print("F1 Score {:0.2f}",format(f1))
+
+#F-beta score calculation
+def fbeta(precision, recall, beta):
+    return ((1+pow(beta,2))*precision*recall)/(pow(beta,2)*precision + recall)
+            
+f2 = fbeta(Precision, Recall, 2)
+f0_5 = fbeta(Precision, Recall, 0.5)
+
+print("F2 {:0.2f}",format(f2))
+print("\nF0.5 {:0.2f}",format(f0_5))
+
+#Specificity 
+Specificity = tn/(tn+fp)
+print("Specificity {:0.2f}",format(Specificity))
+
+"""
+
+""" Assignment -6 data analytics 3
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+
+dataset = pd.read_csv('/content/data6.csv')
+dataset
+
+dataset = pd.read_csv('/content/data6.csv')
+X = dataset.iloc[:, :-1].values
+y = dataset.iloc[:, -1].values
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25, random_state = 0)
+
+print(X_train)
+
+print(y_train)
+
+print(X_test)
+
+print(y_test)
+
+from sklearn.preprocessing import StandardScaler
+sc = StandardScaler()
+X_train = sc.fit_transform(X_train)
+X_test = sc.transform(X_test)
+
+print(X_train)
+
+print(X_test)
+
+from sklearn.naive_bayes import GaussianNB
+classifier = GaussianNB()
+classifier.fit(X_train, y_train)
+
+print(classifier.predict(sc.transform([[30,87000]])))
+
+y_pred = classifier.predict(X_test)
+print(np.concatenate((y_pred.reshape(len(y_pred),1), y_test.reshape(len(y_test),1)),1))
+
+
+from sklearn.metrics import confusion_matrix, accuracy_score
+cm = confusion_matrix(y_test, y_pred)
+print(cm)
+accuracy_score(y_test, y_pred)
+
+#Evaluation of Model - Confusion Matrix Plot
+import itertools
+def plot_confusion_matrix(cm, classes,
+                          normalize=False,
+                          title='Confusion matrix',
+                          cmap=plt.cm.Blues):
+    
+   # This function prints and plots the confusion matrix.
+    #Normalization can be applied by setting `normalize=True`.
+    
+    if normalize:
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        print("Normalized confusion matrix")
+    else:
+        print('Confusion matrix, without normalization')
+
+    print(cm)
+
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
+
+    fmt = '.2f' if normalize else 'd'
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, format(cm[i, j], fmt),
+                 horizontalalignment="center",
+                 color="white" if cm[i, j] > thresh else "black")
+
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+    plt.tight_layout()
+    
+    from sklearn.metrics import confusion_matrix
+# Compute confusion matrix
+cnf_matrix = confusion_matrix(y_test, y_pred)
+np.set_printoptions(precision=2)
+
+
+# Plot non-normalized confusion matrix
+plt.figure()
+plot_confusion_matrix(cnf_matrix, classes=['Age','EstimatedSalary'],
+                      title='Confusion matrix, without normalization')
+
+
+
+#extracting true_positives, false_positives, true_negatives, false_negatives
+tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
+print("True Negatives: ",tn)
+print("False Positives: ",fp)
+print("False Negatives: ",fn)
+print("True Positives: ",tp)
+
+#Accuracy
+Accuracy = (tn+tp)*100/(tp+tn+fp+fn) 
+print("Accuracy {:0.2f}%:", format(Accuracy))
+
+#Recall 
+Recall = tp/(tp+fn) 
+print("Recall {:0.2f}",format(Recall))
+
+#Precision 
+Precision = tp/(tp+fp) 
+print("Precision {:0.2f}",format(Precision))
+
+#F1 Score
+f1 = (2*Precision*Recall)/(Precision + Recall)
+print("F1 Score {:0.2f}",format(f1))
+
+#F-beta score calculation
+def fbeta(precision, recall, beta):
+    return ((1+pow(beta,2))*precision*recall)/(pow(beta,2)*precision + recall)
+            
+f2 = fbeta(Precision, Recall, 2)
+f0_5 = fbeta(Precision, Recall, 0.5)
+
+print("F2 {:0.2f}",format(f2))
+print("\nF0.5 {:0.2f}",format(f0_5))
+
+#Specificity 
+Specificity = tn/(tn+fp)
+print("Specificity {:0.2f}",format(Specificity))
+
+
+from matplotlib.colors import ListedColormap
+X_set, y_set = sc.inverse_transform(X_train), y_train
+X1, X2 = np.meshgrid(np.arange(start = X_set[:, 0].min() - 10, stop = X_set[:, 0].max() + 10, step = 0.25),
+                     np.arange(start = X_set[:, 1].min() - 1000, stop = X_set[:, 1].max() + 1000, step = 0.25))
+plt.contourf(X1, X2, classifier.predict(sc.transform(np.array([X1.ravel(), X2.ravel()]).T)).reshape(X1.shape),
+             alpha = 0.75, cmap = ListedColormap(('red', 'green')))
+plt.xlim(X1.min(), X1.max())
+plt.ylim(X2.min(), X2.max())
+for i, j in enumerate(np.unique(y_set)):
+    plt.scatter(X_set[y_set == j, 0], X_set[y_set == j, 1], c = ListedColormap(('red', 'green'))(i), label = j)
+plt.title('Naive Bayes (Training set)')
+plt.xlabel('Age')
+plt.ylabel('Estimated Salary')
+plt.legend()
+plt.show()
+
+
+
+from matplotlib.colors import ListedColormap
+X_set, y_set = sc.inverse_transform(X_test), y_test
+X1, X2 = np.meshgrid(np.arange(start = X_set[:, 0].min() - 10, stop = X_set[:, 0].max() + 10, step = 0.25),
+                     np.arange(start = X_set[:, 1].min() - 1000, stop = X_set[:, 1].max() + 1000, step = 0.25))
+plt.contourf(X1, X2, classifier.predict(sc.transform(np.array([X1.ravel(), X2.ravel()]).T)).reshape(X1.shape),
+             alpha = 0.75, cmap = ListedColormap(('red', 'green')))
+plt.xlim(X1.min(), X1.max())
+plt.ylim(X2.min(), X2.max())
+for i, j in enumerate(np.unique(y_set)):
+    plt.scatter(X_set[y_set == j, 0], X_set[y_set == j, 1], c = ListedColormap(('red', 'green'))(i), label = j)
+plt.title('Naive Bayes (Test set)')
+plt.xlabel('Age')
+plt.ylabel('Estimated Salary')
+plt.legend()
+plt.show()
+
+"""
+"""
+Assignment -7 Text analytics
+
+!pip install nltk
+
+pip install --upgrade pip
+
+#Loading NLTK
+import nltk
+
+from nltk.tokenize import sent_tokenize
+nltk.download('punkt')
+text=#Hello Mr. Smith, how are you doing today? The weather is great, and city is awesome.
+#The sky is pinkish-blue. You shouldn't eat cardboard
+tokenized_text=sent_tokenize(text)
+print(tokenized_text)
+
+from nltk.tokenize import word_tokenize
+tokenized_word=word_tokenize(text)
+print(tokenized_word)
+
+from nltk.probability import FreqDist
+fdist = FreqDist(tokenized_word)
+print(fdist)
+
+fdist.most_common(2)
+
+from nltk.corpus import stopwords
+nltk.download('stopwords')
+stop_words=set(stopwords.words("english"))
+print(stop_words)
+
+filtered_sent=[]
+for w in tokenized_word:
+    if w not in stop_words:
+        filtered_sent.append(w)
+print("Tokenized Sentence:",tokenized_word)
+print("Filterd Sentence:",filtered_sent)
+
+# Stemming
+from nltk.stem import PorterStemmer
+from nltk.tokenize import sent_tokenize, word_tokenize
+
+ps = PorterStemmer()
+
+stemmed_words=[]
+for w in filtered_sent:
+    stemmed_words.append(ps.stem(w))
+
+print("Filtered Sentence:",filtered_sent)
+print("Stemmed Sentence:",stemmed_words)
+
+#Lexicon Normalization
+#performing stemming and Lemmatization
+
+from nltk.stem.wordnet import WordNetLemmatizer
+import nltk 
+nltk.download('wordnet')
+lem = WordNetLemmatizer()
+
+from nltk.stem.porter import PorterStemmer
+stem = PorterStemmer()
+
+word = "flying"
+print("Lemmatized Word:",lem.lemmatize(word,"v"))
+print("Stemmed Word:",stem.stem(word))
+
+sent = "Albert Einstein was born in Ulm, Germany in 1879."
+
+tokens=nltk.word_tokenize(sent)
+print(tokens)
+
+import nltk
+nltk.download('averaged_perceptron_tagger')
+nltk.pos_tag(tokens)
+
+
+
+# Import pandas
+import pandas as pd
+data=pd.read_csv('/content/train.tsv', sep='\t')
+data.head()
+
+
+data.info()
+
+data.Sentiment.value_counts()
+
+import matplotlib.pyplot as plt
+Sentiment_count=data.groupby('Sentiment').count()
+plt.bar(Sentiment_count.index.values, Sentiment_count['Phrase'])
+plt.xlabel('Review Sentiments')
+plt.ylabel('Number of Review')
+plt.show()
+
+
+from sklearn.feature_extraction.text import CountVectorizer
+from nltk.tokenize import RegexpTokenizer
+#tokenizer to remove unwanted elements from out data like symbols and numbers
+token = RegexpTokenizer(r'[a-zA-Z0-9]+')
+cv = CountVectorizer(lowercase=True,stop_words='english',ngram_range = (1,1),tokenizer = token.tokenize)
+text_counts= cv.fit_transform(data['Phrase'])
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(
+    text_counts, data['Sentiment'], test_size=0.3, random_state=1)
+    
+    from sklearn.naive_bayes import MultinomialNB
+#Import scikit-learn metrics module for accuracy calculation
+from sklearn import metrics
+# Model Generation Using Multinomial Naive Bayes
+clf = MultinomialNB().fit(X_train, y_train)
+predicted= clf.predict(X_test)
+print("MultinomialNB Accuracy:",metrics.accuracy_score(y_test, predicted))
+
+
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+tf=TfidfVectorizer()
+text_tf= tf.fit_transform(data['Phrase'])
+
+
+
+
+print(text_tf)
+
+
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(
+    text_tf, data['Sentiment'], test_size=0.3, random_state=123)
+    
+    
+    
+    
+    from sklearn.naive_bayes import MultinomialNB
+from sklearn import metrics
+# Model Generation Using Multinomial Naive Bayes
+clf = MultinomialNB().fit(X_train, y_train)
+predicted= clf.predict(X_test)
+print("MultinomialNB Accuracy:",metrics.accuracy_score(y_test, predicted))
+
+
+"""
+
+"""Assignment No-8 Data Visualization 1
+
+import pandas as pd
+import numpy as np
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+dataset=pd.read_csv('/content/train.csv')
+dataset.info()
+dataset
+
+
+dataset=pd.read_csv('/content/train.csv')
+dataset.info()
+dataset
+
+sns.distplot(dataset['Fare'])
+
+sns.distplot(dataset['Fare'], kde=False)
+
+sns.distplot(dataset['Fare'], kde=False, bins=10)
+
+sns.jointplot(x='Age', y='Fare', data=dataset)
+
+sns.pairplot(dataset)
+
+sns.rugplot(dataset['Fare'])
+
+sns.barplot(x='Sex', y='Fare', data=dataset)
+
+import numpy as np
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+sns.barplot(x='Sex', y='Age', data=dataset, estimator=np.std)
+
+sns.countplot(x='Fare', data=dataset)
+
+sns.boxplot(x='Sex', y='Age', data=dataset)
+
+sns.boxplot(x='Survived', y='Fare', data=dataset)
+
+sns.boxplot(x='Sex', y='Age', data=dataset, hue="Survived")
+
+sns.violinplot(x='Sex', y='Age', data=dataset, hue='Survived')
+
+sns.stripplot(x='Sex', y='Age', data=dataset)
+
+sns.histplot(data=dataset,x='Fare',y='Survived')
+
+"""
+""" 
+
+Assignment no-9 Data Visualization -2
+
+
+import pandas as pd
+import numpy as np
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+dataset=pd.read_csv('/content/train.csv')
+
+dataset.head()
+
+
+
+sns.boxplot(x='Sex', y='Age', data=dataset)
+
+sns.boxplot(x='Sex', y='Age', data=dataset, hue="Survived")
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from seaborn import load_dataset
+#titanic dataset
+data = pd.read_csv('/content/train.csv')
+#tips dataset
+tips = load_dataset("tips")
+
+sns.boxplot(x='Survived', y='Fare', data=dataset)
+
+sns.boxplot(x='Sex', y='Age', data=dataset)
+
+sns.boxplot(x='Sex', y='Age', data=dataset)
+
+sns.boxplot(x='Survived', y='Fare', data=dataset)
+
+"""
+
+"""Assignment No-10 Data Visualization 3
+
+import numpy as np
+import pandas as pd
+
+df = pd.read_csv("/content/iris-flower-dataset (1).csv",header=None)
+df.columns = ["col1","col2","col3","col4","col5"]
+
+
+df.head()
+
+column = len(list(df))
+column
+
+df.info()
+
+np.unique(df["col5"])
+
+df.describe()
+
+import seaborn as sns
+import matplotlib
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+
+fig, axes = plt.subplots(2, 2, figsize=(16, 8))
+
+
+axes[0,0].set_title("Distribution of First Column")
+axes[0,0].hist(df["col1"]);
+
+axes[0,1].set_title("Distribution of Second Column")
+axes[0,1].hist(df["col2"]);
+
+axes[1,0].set_title("Distribution of Third Column")
+axes[1,0].hist(df["col3"]);
+
+axes[1,1].set_title("Distribution of Fourth Column")
+axes[1,1].hist(df["col4"]);
+
+data_to_plot = [df["col1"],df["col2"],df["col3"],df["col4"]]
+
+sns.set_style("whitegrid")
+# Creating a figure instance
+fig = plt.figure(1, figsize=(12,8))
+
+# Creating an axes instance
+ax = fig.add_subplot(111)
+
+# Creating the boxplot
+bp = ax.boxplot(data_to_plot)
+
+"""
+
+"""
