@@ -1,0 +1,775 @@
+"""  DFS
+# Python3 program to print DFS traversal
+# from a given given graph
+from collections import defaultdict
+
+# This class represents a directed graph using
+# adjacency list representation
+
+
+class Graph:
+
+    # Constructor  
+    def __init__(self):
+
+        # default dictionary to store graph
+        self.graph = defaultdict(list)
+
+    # function to add an edge to graph
+    def addEdge(self, u, v):
+        self.graph[u].append(v)
+
+    # A function used by DFS  current node v and entire set of visited nodes
+    def DFSUtil(self, v, visited):
+
+        # Mark the current node as visited
+        # and print it
+        visited.add(v)
+        print(v, end=' ')
+
+        # Recur for all the vertices
+        # adjacent to this vertex
+        for neighbour in self.graph[v]:
+            if neighbour not in visited:
+                self.DFSUtil(neighbour, visited)
+
+    # The function to do DFS traversal. It uses
+    # recursive DFSUtil()
+    def DFS(self, v):
+
+        # Create a set to store visited vertices
+        visited = set()
+
+        # Call the recursive helper function
+        # to print DFS traversal
+        self.DFSUtil(v, visited)
+
+# Driver code
+
+
+# Create a graph given
+# in the above diagram
+g = Graph()
+g.addEdge(0, 1)
+g.addEdge(0, 2)
+g.addEdge(1, 2)
+g.addEdge(2, 0)
+g.addEdge(2, 3)
+g.addEdge(3, 3)
+
+print("Following is DFS from (starting from vertex 2)")
+g.DFS(2)
+
+"""
+
+
+"""  BFS
+# Python3 Program to print BFS traversal
+# from a given source vertex. BFS(int s)
+# traverses vertices reachable from s.
+from collections import defaultdict
+
+# This class represents a directed graph
+# using adjacency list representation
+class Graph:
+
+    # Constructor
+    def __init__(self):
+
+        # default dictionary to store graph
+        self.graph = defaultdict(list)
+
+    # function to add an edge to graph
+    def addEdge(self,u,v):
+        self.graph[u].append(v)
+
+    # Function to print a BFS of graph
+    def BFS(self, s):
+
+        # Mark all the vertices as not visited
+        visited = [False] * (max(self.graph) + 1)
+
+        # Create a queue for BFS
+        queue = []
+
+        # Mark the source node as 
+        # visited and enqueue it
+        queue.append(s)
+        visited[s] = True
+
+        while queue:
+
+            # Dequeue a vertex from 
+            # queue and print it
+            s = queue.pop(0)
+            print (s, end = " ")
+
+            # Get all adjacent vertices of the
+            # dequeued vertex s. If a adjacent
+            # has not been visited, then mark it
+            # visited and enqueue it
+            for i in self.graph[s]:
+                if visited[i] == False:
+                    queue.append(i)
+                    visited[i] = True
+
+# Driver code
+
+# Create a graph given in
+# the above diagram
+g = Graph()
+g.addEdge(0, 1)
+g.addEdge(0, 2)
+g.addEdge(1, 2)
+g.addEdge(2, 0)
+g.addEdge(2, 3)
+g.addEdge(3, 3)
+
+print ("Following is Breadth First Traversal"
+                  " (starting from vertex 2)")
+g.BFS(2)
+"""
+
+"""A*
+# we use a tree data structure to solve thr a star problem 
+# each node in the tree is an object of class Node
+# each object of class node is a form of the matrix
+class Node:
+    def __init__(self, data, level, fval):
+        # Initialize the node with the data, level of the node and the calculated fvalue 
+        self.data = data
+        self.level = level
+        self.fval = fval
+
+    def generate_child(self):
+        #Generate child nodes from the given node by moving the blank space
+            #either in the four directions {up,down,left,right} 
+        x, y = self.find(self.data, '_')
+        #val_list contains position values for moving the blank space in either of
+            #the 4 directions [up,down,left,right] respectively. 
+        val_list = [[x, y-1], [x, y+1], [x-1, y], [x+1, y]] #this are the x and y coordinates of the children in the matrix
+        children = []
+        for i in val_list:
+            child = self.shuffle(self.data, x, y, i[0], i[1])
+            if child is not None: #we assign a child node if and only if the child exists in the matrix 
+                child_node = Node(child, self.level+1, 0)
+                children.append(child_node)
+        return children
+
+    def shuffle(self, puz, x1, y1, x2, y2):
+        # Move the blank space in the given direction and if the position value are out of limits the return None
+        if x2 >= 0 and x2 < len(self.data) and y2 >= 0 and y2 < len(self.data):
+            temp_puz = []
+            temp_puz = self.copy(puz)
+            temp = temp_puz[x2][y2]
+            temp_puz[x2][y2] = temp_puz[x1][y1] #moving the blank space (exchange values in matrix)
+            temp_puz[x1][y1] = temp
+            return temp_puz
+        else:
+            return None
+
+    def copy(self, root):
+        # Copy function to create a similar matrix of the given node
+        temp = []
+        for i in root:
+            t = []
+            for j in i:
+                t.append(j)
+            temp.append(t)
+        return temp
+
+    def find(self, puz, x):
+        # Specifically used to find the position of the blank space 
+        for i in range(0, len(self.data)):
+            for j in range(0, len(self.data)):
+                if puz[i][j] == x:
+                    return i, j
+
+
+class Puzzle:
+    def __init__(self, size):
+        # Initialize the puzzle size by the specified size,open and closed lists to empty 
+        self.n = size
+        self.open = []
+        self.closed = []
+
+    def accept(self):
+        # Accepts the puzzle from the user
+        puz = []
+        for i in range(0, self.n):
+            temp = input().split(" ")
+            puz.append(temp)
+        return puz
+
+    def f(self, start, goal):
+        # Heuristic Function to calculate hueristic value f(x) = h(x) + g(x)
+        return self.h(start.data, goal)+start.level
+
+    def h(self, start, goal):
+        # Calculates the different between the given puzzles 
+        temp = 0
+        for i in range(0, self.n):
+            for j in range(0, self.n):
+                if start[i][j] != goal[i][j] and start[i][j] != '_':
+                    temp += 1
+        return temp
+
+    def process(self):
+        # Accept Start and Goal Puzzle state
+        print("Enter the start state matrix \n")
+        start = self.accept()
+        print("Enter the goal state matrix \n")
+        goal = self.accept()
+
+        # we initiate the tree with the start configuration of the matrix
+        start = Node(start, 0, 0)
+        start.fval = self.f(start, goal)
+        # Put the start node in the open list
+        self.open.append(start)
+        print("\n\n")
+        while True:
+            cur = self.open[0]
+            print("")
+            print("  | ")
+            print("  | ")
+            print(" \\\'/")
+            print("  V  \n")
+            for i in cur.data:
+                for j in i:
+                    print(j, end=" ")
+                print("")
+            # If the difference between current and goal node is 0 we have reached the goal node
+            if(self.h(cur.data, goal) == 0):
+                break
+            for i in cur.generate_child():
+                i.fval = self.f(i, goal)
+                self.open.append(i)
+            self.closed.append(cur)
+            del self.open[0]
+
+            # sort the opne list based on f value 
+            self.open.sort(key=lambda x: x.fval, reverse=False)
+
+
+puz = Puzzle(3)
+puz.process()
+
+"""
+
+""" Kruskals algo
+from collections import defaultdict
+
+# Class to represent a graph
+
+
+class Graph:
+
+	def __init__(self, vertices):
+		self.V = vertices # No. of vertices
+		self.graph = [] # default dictionary
+		# to store graph
+
+	# function to add an edge to graph
+	def addEdge(self, u, v, w):
+		self.graph.append([u, v, w])
+
+	# A utility function to find set of an element i
+	# (uses path compression technique)
+	def find(self, parent, i):
+		if parent[i] == i:
+			return i
+		return self.find(parent, parent[i])
+
+	# A function that does union of two sets of x and y
+	# (uses union by rank)
+	def union(self, parent, rank, x, y):
+		xroot = self.find(parent, x)
+		yroot = self.find(parent, y)
+
+		# Attach smaller rank tree under root of
+		# high rank tree (Union by Rank)
+		if rank[xroot] < rank[yroot]:
+			parent[xroot] = yroot
+		elif rank[xroot] > rank[yroot]:
+			parent[yroot] = xroot
+
+		# If ranks are same, then make one as root
+		# and increment its rank by one
+		else:
+			parent[yroot] = xroot
+			rank[xroot] += 1
+
+	# The main function to construct MST using Kruskal's
+		# algorithm
+	def KruskalMST(self):
+
+		result = [] # This will store the resultant MST
+		
+		# An index variable, used for sorted edges
+		i = 0
+		
+		# An index variable, used for result[]
+		e = 0
+
+		# Step 1: Sort all the edges in
+		# non-decreasing order of their
+		# weight. If we are not allowed to change the
+		# given graph, we can create a copy of graph
+		self.graph = sorted(self.graph,
+							key=lambda item: item[2])
+
+		parent = []
+		rank = []
+
+		# Create V subsets with single elements
+		for node in range(self.V):
+			parent.append(node)
+			rank.append(0)
+
+		# Number of edges to be taken is equal to V-1
+		while e < self.V - 1:
+
+			# Step 2: Pick the smallest edge and increment
+			# the index for next iteration
+			u, v, w = self.graph[i]
+			i = i + 1
+			x = self.find(parent, u)
+			y = self.find(parent, v)
+
+			# If including this edge does't
+			# cause cycle, include it in result
+			# and increment the indexof result
+			# for next edge
+			if x != y:
+				e = e + 1
+				result.append([u, v, w])
+				self.union(parent, rank, x, y)
+			# Else discard the edge
+
+		minimumCost = 0
+		print ("Edges in the constructed MST")
+		for u, v, weight in result:
+			minimumCost += weight
+			print("%d -- %d == %d" % (u, v, weight))
+		print("Minimum Spanning Tree" , minimumCost)
+
+# Driver code
+g = Graph(4)
+g.addEdge(0, 1, 10)
+g.addEdge(0, 2, 6)
+g.addEdge(0, 3, 5)
+g.addEdge(1, 3, 15)
+g.addEdge(2, 3, 4)
+
+# Function call
+g.KruskalMST()
+
+"""
+""" Prims algo
+import sys # Library for INT_MAX
+
+class Graph():
+
+	def __init__(self, vertices):
+		self.V = vertices
+		self.graph = [[0 for column in range(vertices)]
+					for row in range(vertices)]
+
+	# A utility function to print the constructed MST stored in parent[]
+	def printMST(self, parent):
+		print ("Edge \tWeight")
+		for i in range(1, self.V):
+			print (parent[i], "-", i, "\t", self.graph[i][parent[i]])
+
+	# A utility function to find the vertex with
+	# minimum distance value, from the set of vertices
+	# not yet included in shortest path tree
+	def minKey(self, key, mstSet):
+
+		# Initialize min value
+		min = sys.maxsize
+
+		for v in range(self.V):
+			if key[v] < min and mstSet[v] == False:
+				min = key[v]
+				min_index = v
+
+		return min_index
+
+	# Function to construct and print MST for a graph
+	# represented using adjacency matrix representation
+	def primMST(self):
+
+		# Key values used to pick minimum weight edge in cut
+		key = [sys.maxsize] * self.V
+		parent = [None] * self.V # Array to store constructed MST
+		# Make key 0 so that this vertex is picked as first vertex
+		key[0] = 0
+		mstSet = [False] * self.V
+
+		parent[0] = -1 # First node is always the root of
+
+		for cout in range(self.V):
+
+			# Pick the minimum distance vertex from
+			# the set of vertices not yet processed.
+			# u is always equal to src in first iteration
+			u = self.minKey(key, mstSet)
+
+			# Put the minimum distance vertex in
+			# the shortest path tree
+			mstSet[u] = True
+
+			# Update dist value of the adjacent vertices
+			# of the picked vertex only if the current
+			# distance is greater than new distance and
+			# the vertex in not in the shortest path tree
+			for v in range(self.V):
+
+				# graph[u][v] is non zero only for adjacent vertices of m
+				# mstSet[v] is false for vertices not yet included in MST
+				# Update the key only if graph[u][v] is smaller than key[v]
+				if self.graph[u][v] > 0 and mstSet[v] == False and key[v] > self.graph[u][v]:
+						key[v] = self.graph[u][v]
+						parent[v] = u
+
+		self.printMST(parent)
+
+g = Graph(5)
+g.graph = [ [0, 2, 0, 6, 0],
+			[2, 0, 3, 8, 5],
+			[0, 3, 0, 0, 7],
+			[6, 8, 0, 0, 9],
+			[0, 5, 7, 9, 0]]
+
+g.primMST();
+
+"""
+""" N_Queen
+# Python program to solve N Queen
+# Problem using backtracking
+
+global N
+N = 4
+
+def printSolution(board):
+	for i in range(N):
+		for j in range(N):
+			print (board[i][j],end=' ')
+		print()
+
+
+# A utility function to check if a queen can
+# be placed on board[row][col]. Note that this
+# function is called when "col" queens are
+# already placed in columns from 0 to col -1.
+# So we need to check only left side for
+# attacking queens
+def isSafe(board, row, col):
+
+	# Check this row on left side
+	for i in range(col):
+		if board[row][i] == 1:
+			return False
+
+	# Check upper diagonal on left side
+	for i, j in zip(range(row, -1, -1), range(col, -1, -1)):
+		if board[i][j] == 1:
+			return False
+
+	# Check lower diagonal on left side
+	for i, j in zip(range(row, N, 1), range(col, -1, -1)):
+		if board[i][j] == 1:
+			return False
+
+	return True
+
+def solveNQUtil(board, col):
+	# base case: If all queens are placed
+	# then return true
+	if col >= N:
+		return True
+
+	# Consider this column and try placing
+	# this queen in all rows one by one
+	for i in range(N):
+
+		if isSafe(board, i, col):
+			# Place this queen in board[i][col]
+			board[i][col] = 1
+
+			# recur to place rest of the queens
+			if solveNQUtil(board, col + 1) == True:
+				return True
+
+			# If placing queen in board[i][col
+			# doesn't lead to a solution, then
+			# queen from board[i][col]
+			board[i][col] = 0
+
+	# if the queen can not be placed in any row in
+	# this column col then return false
+	return False
+
+# This function solves the N Queen problem using
+# Backtracking. It mainly uses solveNQUtil() to
+# solve the problem. It returns false if queens
+# cannot be placed, otherwise return true and
+# placement of queens in the form of 1s.
+# note that there may be more than one
+# solutions, this function prints one of the
+# feasible solutions.
+def solveNQ():
+	board = [ [0, 0, 0, 0],
+			[0, 0, 0, 0],
+			[0, 0, 0, 0],
+			[0, 0, 0, 0]
+			]
+
+	if solveNQUtil(board, 0) == False:
+		print ("Solution does not exist")
+		return False
+
+	printSolution(board)
+	return True
+
+# driver program to test above function
+solveNQ()
+
+"""
+
+
+""" Graph coloring
+# Adjacent Matrix
+G = [[ 0, 1, 1, 0, 1, 0],
+     [ 1, 0, 1, 1, 0, 1],
+     [ 1, 1, 0, 1, 1, 0],
+     [ 0, 1, 1, 0, 0, 1],
+     [ 1, 0, 1, 0, 0, 1],
+     [ 0, 1, 0, 1, 1, 0]]
+
+
+
+# inisiate the name of node.
+node = "abcdef"
+t_={}
+for i in range(len(G)):
+  t_[node[i]] = i
+
+# count degree of all node.
+degree =[]
+for i in range(len(G)):
+  degree.append(sum(G[i]))
+
+# inisiate the posible color
+colorDict = {}
+for i in range(len(G)):
+  colorDict[node[i]]=["Blue","Red","Yellow","Green"]
+
+
+# sort the node depends on the degree
+sortedNode=[]
+indeks = []
+
+# use selection sort
+for i in range(len(degree)):
+  _max = 0
+  j = 0
+  for j in range(len(degree)):
+    if j not in indeks:
+      if degree[j] > _max:
+        _max = degree[j]
+        idx = j
+  indeks.append(idx)
+  sortedNode.append(node[idx])
+
+# The main process
+theSolution={}
+for n in sortedNode:
+  setTheColor = colorDict[n]
+  theSolution[n] = setTheColor[0]
+  adjacentNode = G[t_[n]]
+  for j in range(len(adjacentNode)):
+    if adjacentNode[j]==1 and (setTheColor[0] in colorDict[node[j]]):
+      colorDict[node[j]].remove(setTheColor[0])
+
+
+# Print the solution
+for t,w in sorted(theSolution.items()):
+  print("Node",t," = ",w)
+
+"""
+
+
+""" Chatboat simple
+# import required libraries
+import random
+
+# define bot's responses
+responses = {
+    "hi": ["Hello!", "Hi there!", "Hi! How can I assist you?"],
+    "bye": ["Goodbye!", "See you later!", "Bye! Have a great day."],
+    "default": ["I'm sorry, I didn't understand what you meant. Can you please rephrase?", 
+                "I'm not sure what you mean. Could you please provide more context?"]
+}
+
+# define function to generate bot's response
+def get_bot_response(user_message):
+    if user_message in responses:
+        return random.choice(responses[user_message])
+    else:
+        return random.choice(responses["default"])
+
+# start chatting with the bot
+while True:
+    user_message = input("You: ")
+    if user_message.lower() == "quit":
+        break
+    bot_response = get_bot_response(user_message.lower())
+    print("Bot: " + bot_response)
+
+
+""" 
+"""chatboat 2
+
+
+!pip install chatterbot
+from chatterbot import ChatBot
+from chatterbot.trainers import ListTrainer
+
+bot = ChatBot('Bot')
+
+trainer = ListTrainer(bot)
+trainer.train([
+    "Hi, can I help you",
+    "Who are you?",
+    "I am your virtual assistant. Ask me any questions...",
+    "Where do you operate?",
+    "We operate from Singapore",
+    "What payment methods do you accept?",
+    "We accept debit cards and major credit cards",
+    "I would like to speak to your customer service agent",
+    "please call +65 3333 3333. Our operating hours are from 9am to 5pm, Monday to Friday"
+    
+])
+trainer.train([
+    "What payment methods do you offer?",
+    "We accept debit cards and major credit cards",
+    "How to contact customer service agent",
+    "please call +65 3333 3333. Our operating hours are from 9am to 5pm, Monday to Friday"
+    
+])
+
+while True:
+	request=input('you :')
+	if request == 'OK' or request == 'ok':
+		print('Bot: bye')
+		break
+	else:
+		response=bot.get_response(request)
+
+		print('Bot:', response)
+
+"""
+
+
+"""Student Management System
+
+# Create class "Student"
+class Student:
+    # Constructor
+    def __init__(self, name, rollno, m1, m2):
+        self.name = name
+        self.rollno = rollno
+        self.m1 = m1
+        self.m2 = m2
+
+    # Function to create and append new student
+    def accept(self, Name, Rollno, marks1, marks2):
+        # use ' int(input()) ' method to take input from user
+        ob = Student(Name, Rollno, marks1, marks2)
+        ls.append(ob)
+
+    # Function to display student details
+    def display(self, ob):
+        print("Name : ", ob.name)
+        print("RollNo : ", ob.rollno)
+        print("Marks1 : ", ob.m1)
+        print("Marks2 : ", ob.m2)
+        print("\n")
+
+    # Search Function
+    def search(self, rn):
+        for i in range(ls.__len__()):
+            if(ls[i].rollno == rn):
+                return i
+
+    # Delete Function
+    def delete(self, rn):
+        i = obj.search(rn)
+        del ls[i]
+
+    # Update Function
+    def update(self, rn, No):
+        i = obj.search(rn)
+        roll = No
+        ls[i].rollno = roll
+
+# Create a list to add Students
+ls = []
+
+# an object of Student class
+obj = Student('', 0, 0, 0)
+
+print("\nOperations used, ")
+print("\n1.Accept Student details\n2.Display Student Details\n3.Search Details of a Student\n4.Delete Details of Student\n5.Update Student Details\n6.Exit")
+
+# obj.accept("A", 1, 100, 100)
+# obj.accept("B", 2, 90, 90)
+# obj.accept("C", 3, 80, 80)
+
+while True:
+    ch = int(input("Enter choice: "))
+
+    if ch == 1:
+        name = input("Enter name: ")
+        rollno = int(input("Enter roll number: "))
+        marks1 = int(input("Enter marks 1: "))
+        marks2 = int(input("Enter marks 2: "))
+        obj.accept(name, rollno, marks1, marks2)
+    elif ch == 2:
+        print("\nList of Students\n")
+        for i in range(ls.__len__()):
+            obj.display(ls[i])
+    elif ch == 3:
+        rollno = int(input("Enter roll number to search: "))
+        s = obj.search(rollno)
+        if s is not None:
+            print("\nStudent Found\n")
+            obj.display(ls[s])
+        else:
+            print("\nStudent not found\n")
+    elif ch == 4:
+        rollno = int(input("Enter roll number to delete: "))
+        obj.delete(rollno)
+        print("List after deletion")
+        for i in range(ls.__len__()):
+            obj.display(ls[i])
+    elif ch == 5:
+        rollno = int(input("Enter roll number to update: "))
+        new_rollno = int(input("Enter new roll number: "))
+        obj.update(rollno, new_rollno)
+        print("List after updation")
+        for i in range(ls.__len__()):
+            obj.display(ls[i])
+    elif ch == 6:
+        break
+    else:
+        print("Invalid choice")
+
+print("Thank You!")
+
+"""
+
+
+
